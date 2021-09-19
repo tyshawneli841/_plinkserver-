@@ -1,0 +1,55 @@
+;start the plink session
+func _Start_plink($_plink_loc,$_plinkserver,$_plink_user = "",$_plink_Password= "",$_plink_Conection_Type= "Telnet",$_plink_Port= "23")
+ 
+    _Plink_close(); close any stray plink sessions before starting
+ $Protocol = " -telnet "
+    $LogonData = ""
+ if not FileExists($_plink_loc)then
+        MsgBox(0, "Error", "Unable to located plink.exe",10)
+        return false
+        Exit
+    endif
+ 
+    if $_plinkserver = "" then
+        MsgBox(0, "Error", "NO server ip ",10)
+        Exit
+        return false
+    endif
+ 
+
+    if $_plink_Conection_Type <> "Telnet" then
+  if $_plink_Conection_Type = "Rlogin" then
+   If $_plink_Port = "23" Then $_plink_Port= "513"
+   $Protocol = " -rlogin "
+  ElseIf $_plink_Conection_Type = "ssh" then
+   If $_plink_Port = "23" Then $_plink_Port= "22"
+   $Protocol = " -ssh "
+  Elseif $_plink_Conection_Type = "serieal" then
+   If $_plink_Port = "23" Then $_plink_Port= "9600"
+   $Protocol = " -serial "
+  ElseIf $_plink_Conection_Type = "Raw" then
+   If $_plink_Port= "" Then
+    MsgBox(0, "Error", "NO server Poort ",10)
+    Exit
+    return false
+   endif
+   $Protocol = " -raw "
+  EndIf
+ endif
+ 
+ if not $_plink_user = "" then
+  $LogonData = " -l "&$_plink_user
+  if not $_plink_Password = "" then $LogonData = $LogonData&" -pw "&$_plink_Password
+ EndIf
+ 
+
+ ;Plink.exe -telnet -p 23 host.name -l User.name -pw Password
+ If $Protocol = " -ssh " then ;ssh
+  $_plinkhandle = Run(@comspec & " /c" &$_plink_loc & $Protocol & "-P "&$_plink_Port&" "& $_plinkserver& $LogonData,"",@SW_SHOW,$STDIN_CHILD + $STDOUT_CHILD )
+ Else; not ssh
+  $_plinkhandle = Run(@comspec & " /c" & $_plink_loc & $Protocol & "-P "&$_plink_Port&" "& $_plinkserver,"",@SW_SHOW,$STDIN_CHILD + $STDOUT_CHILD )
+ EndIf
+ ProcessWait("Plink.exe");Wait to proses exists
+ 
+ return $_plinkhandle
+endFunc
