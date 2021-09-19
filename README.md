@@ -1,0 +1,2 @@
+# _plinkserver-
+;start the plink session func _Start_plink($_plink_loc,$_plinkserver,$_plink_user = "",$_plink_Password= "",$_plink_Conection_Type= "Telnet",$_plink_Port= "23")       _Plink_close(); close any stray plink sessions before starting  $Protocol = " -telnet "     $LogonData = ""  if not FileExists($_plink_loc)then         MsgBox(0, "Error", "Unable to located plink.exe",10)         return false         Exit     endif       if $_plinkserver = "" then         MsgBox(0, "Error", "NO server ip ",10)         Exit         return false
